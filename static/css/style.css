@@ -270,6 +270,8 @@ header {
     background-color: var(--primary-dark);
     width: 100%;
     padding: 0 20px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow);
 }
 
 .header-left {

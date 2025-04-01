@@ -1,0 +1,172 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager with AI Assistant</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar for AI Chat -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fas fa-robot"></i>
+                    <h2>AI Assistant</h2>
+                </div>
+                <button id="toggle-sidebar" class="toggle-btn" aria-label="Toggle sidebar">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="chat-container" id="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot">
+                        <div class="message-content">Hello! I'm your AI assistant. How can I help you today?</div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Type your message...">
+                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content for Tasks -->
+        <div class="main-content" id="main-content">
+            <header>
+                <div class="header-left">
+                    <button id="show-sidebar" class="show-sidebar-btn" aria-label="Show AI Assistant">
+                        <i class="fas fa-comment-dots"></i>
+                    </button>
+                    <h1>Task Manager</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <span class="date-display" id="current-date"></span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="dashboard-intro">
+                <h2>Eisenhower Matrix</h2>
+                <p>Organize your tasks based on importance and urgency to improve productivity.</p>
+            </div>
+            
+            <div class="task-grid">
+                <div class="grid-item urgent important">
+                    <div class="grid-item-header">
+                        <h2><i class="fas fa-fire"></i> Important & Urgent</h2>
+                        <span class="task-count">{{ tasks.important_urgent|length }}</span>
+                    </div>
+                    <div class="task-list">
+                        {% for task in tasks.important_urgent %}
+                        <div class="task-item {% if task.completed %}completed{% endif %}">
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="task-iu-{{ task.id }}" {% if task.completed %}checked{% endif %} 
+                                       onchange="toggleTask('{{ task.id }}', 'important_urgent')">
+                                <label for="task-iu-{{ task.id }}"></label>
+                            </div>
+                            <span class="task-text">{{ task.text }}</span>
+                            <button class="delete-btn" onclick="deleteTask('{{ task.id }}', 'important_urgent')" aria-label="Delete task">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <form class="add-task-form" action="/add_task" method="post">
+                        <input type="hidden" name="category" value="important_urgent">
+                        <input type="text" name="task" placeholder="Add a new task..." required>
+                        <button type="submit" aria-label="Add task"><i class="fas fa-plus"></i></button>
+                    </form>
+                </div>
+                
+                <div class="grid-item important">
+                    <div class="grid-item-header">
+                        <h2><i class="fas fa-calendar-alt"></i> Important & Not Urgent</h2>
+                        <span class="task-count">{{ tasks.important_not_urgent|length }}</span>
+                    </div>
+                    <div class="task-list">
+                        {% for task in tasks.important_not_urgent %}
+                        <div class="task-item {% if task.completed %}completed{% endif %}">
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="task-inu-{{ task.id }}" {% if task.completed %}checked{% endif %} 
+                                       onchange="toggleTask('{{ task.id }}', 'important_not_urgent')">
+                                <label for="task-inu-{{ task.id }}"></label>
+                            </div>
+                            <span class="task-text">{{ task.text }}</span>
+                            <button class="delete-btn" onclick="deleteTask('{{ task.id }}', 'important_not_urgent')" aria-label="Delete task">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <form class="add-task-form" action="/add_task" method="post">
+                        <input type="hidden" name="category" value="important_not_urgent">
+                        <input type="text" name="task" placeholder="Add a new task..." required>
+                        <button type="submit" aria-label="Add task"><i class="fas fa-plus"></i></button>
+                    </form>
+                </div>
+                
+                <div class="grid-item urgent">
+                    <div class="grid-item-header">
+                        <h2><i class="fas fa-clock"></i> Not Important & Urgent</h2>
+                        <span class="task-count">{{ tasks.not_important_urgent|length }}</span>
+                    </div>
+                    <div class="task-list">
+                        {% for task in tasks.not_important_urgent %}
+                        <div class="task-item {% if task.completed %}completed{% endif %}">
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="task-niu-{{ task.id }}" {% if task.completed %}checked{% endif %} 
+                                       onchange="toggleTask('{{ task.id }}', 'not_important_urgent')">
+                                <label for="task-niu-{{ task.id }}"></label>
+                            </div>
+                            <span class="task-text">{{ task.text }}</span>
+                            <button class="delete-btn" onclick="deleteTask('{{ task.id }}', 'not_important_urgent')" aria-label="Delete task">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <form class="add-task-form" action="/add_task" method="post">
+                        <input type="hidden" name="category" value="not_important_urgent">
+                        <input type="text" name="task" placeholder="Add a new task..." required>
+                        <button type="submit" aria-label="Add task"><i class="fas fa-plus"></i></button>
+                    </form>
+                </div>
+                
+                <div class="grid-item">
+                    <div class="grid-item-header">
+                        <h2><i class="fas fa-low-vision"></i> Not Important & Not Urgent</h2>
+                        <span class="task-count">{{ tasks.not_important_not_urgent|length }}</span>
+                    </div>
+                    <div class="task-list">
+                        {% for task in tasks.not_important_not_urgent %}
+                        <div class="task-item {% if task.completed %}completed{% endif %}">
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="task-ninu-{{ task.id }}" {% if task.completed %}checked{% endif %} 
+                                       onchange="toggleTask('{{ task.id }}', 'not_important_not_urgent')">
+                                <label for="task-ninu-{{ task.id }}"></label>
+                            </div>
+                            <span class="task-text">{{ task.text }}</span>
+                            <button class="delete-btn" onclick="deleteTask('{{ task.id }}', 'not_important_not_urgent')" aria-label="Delete task">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <form class="add-task-form" action="/add_task" method="post">
+                        <input type="hidden" name="category" value="not_important_not_urgent">
+                        <input type="text" name="task" placeholder="Add a new task..." required>
+                        <button type="submit" aria-label="Add task"><i class="fas fa-plus"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
